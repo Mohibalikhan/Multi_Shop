@@ -22,7 +22,6 @@ export default function SellProducts() {
   const [buyRate, setBuyRate] = useState('');
   const [sellRate, setSellRate] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [showSellForm, setShowSellForm] = useState(false);
   const [shopId, setShopId] = useState('');
 
   const router = useRouter();
@@ -83,17 +82,11 @@ export default function SellProducts() {
     setBuyPrice('');
     setBuyRate('');
     setSellRate('');
-    setShowSellForm(false);
   };
 
   const handleDeleteProduct = (index: number) => {
     setProducts((prev) => prev.filter((_, i) => i !== index));
     toast.success('Product deleted successfully');
-  };
-
-  const logout = () => {
-    localStorage.removeItem('currentShop');
-    router.push('/');
   };
 
   const totalProfit = products.reduce((total, p) => total + p.profit, 0);
@@ -105,36 +98,52 @@ export default function SellProducts() {
       <div className="max-w-5xl mx-auto">
         <Toaster position="top-right" richColors />
 
-        <div className="flex justify-between items-center mb-4">
-          <Button onClick={() => {
-            setShowSellForm(true);
-            setEditingIndex(null);
-          }} className="bg-black text-white hover:bg-gray-800">
-            + Add Sell Product
-          </Button>
-
-          <Button onClick={logout} className="bg-red-500 text-white hover:bg-red-600">
-            Logout
-          </Button>
-        </div>
-
-        {showSellForm && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 className="text-xl font-semibold text-indigo-800 mb-4">{editingIndex !== null ? 'Update Product' : 'Add New Sell Product'}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input type="text" placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} className="border px-4 py-2 rounded-md w-full bg-white/90" />
-              <input type="number" placeholder="Quantity" value={buyPrice} onChange={(e) => setBuyPrice(e.target.value)} className="border px-4 py-2 rounded-md w-full bg-white/90" />
-              <input type="number" placeholder="Buying Rate Each" value={buyRate} onChange={(e) => setBuyRate(e.target.value)} className="border px-4 py-2 rounded-md w-full bg-white/90" />
-              <input type="number" placeholder="Selling Rate Each" value={sellRate} onChange={(e) => setSellRate(e.target.value)} className="border px-4 py-2 rounded-md w-full bg-white/90" />
-              <div className="sm:col-span-2">
-                <Button onClick={handleAddProduct} className="w-full bg-green-600 text-white hover:bg-green-700">
-                  {editingIndex !== null ? 'Update Product' : 'Add Sell Product'}
-                </Button>
-              </div>
+        {/* Always show add product form */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-xl font-semibold text-indigo-800 mb-4">
+            {editingIndex !== null ? 'Update Product' : 'Add New Sell Product'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Product Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <input
+              type="number"
+              placeholder="Quantity"
+              value={buyPrice}
+              onChange={(e) => setBuyPrice(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <input
+              type="number"
+              placeholder="Buying Rate Each"
+              value={buyRate}
+              onChange={(e) => setBuyRate(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <input
+              type="number"
+              placeholder="Selling Rate Each"
+              value={sellRate}
+              onChange={(e) => setSellRate(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <div className="sm:col-span-2">
+              <Button
+                onClick={handleAddProduct}
+                className="w-full bg-green-600 text-white hover:bg-green-700"
+              >
+                {editingIndex !== null ? 'Update Product' : 'Add Sell Product'}
+              </Button>
             </div>
           </div>
-        )}
+        </div>
 
+        {/* Product list table */}
         {products.length > 0 && (
           <div className="overflow-x-auto mt-10">
             <h2 className="text-2xl font-bold mb-4 text-indigo-800">Sell Product List</h2>
@@ -165,18 +174,23 @@ export default function SellProducts() {
                     <td className="py-2 px-4 text-green-700 font-semibold">{p.profit.toFixed(2)}</td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
-                        <Button onClick={() => handleDeleteProduct(index)} className="bg-red-600 text-white hover:bg-red-700 text-sm px-3 py-1">
+                        <Button
+                          onClick={() => handleDeleteProduct(index)}
+                          className="bg-red-600 text-white hover:bg-red-700 text-sm px-3 py-1"
+                        >
                           Delete
                         </Button>
-                        <Button onClick={() => {
-                          const product = products[index];
-                          setName(product.name);
-                          setBuyPrice(product.buyPrice.toString());
-                          setBuyRate(product.buyRate.toString());
-                          setSellRate(product.sellRate.toString());
-                          setShowSellForm(true);
-                          setEditingIndex(index);
-                        }} className="bg-green-600 text-white hover:bg-green-700 text-sm px-3 py-1">
+                        <Button
+                          onClick={() => {
+                            const product = products[index];
+                            setName(product.name);
+                            setBuyPrice(product.buyPrice.toString());
+                            setBuyRate(product.buyRate.toString());
+                            setSellRate(product.sellRate.toString());
+                            setEditingIndex(index);
+                          }}
+                          className="bg-green-600 text-white hover:bg-green-700 text-sm px-3 py-1"
+                        >
                           Update
                         </Button>
                       </div>
@@ -185,10 +199,21 @@ export default function SellProducts() {
                 ))}
               </tbody>
             </table>
+
+            {/* Summary section */}
             <div className="mt-4 p-4 bg-gray-300 rounded text-right space-y-1">
-              <div><strong className="text-gray-800">Total Investment: </strong><span className="text-yellow-700 font-bold">{totalInvestment.toFixed(2)}</span></div>
-              <div><strong className="text-gray-800">Total Sell: </strong><span className="text-blue-700 font-bold">{totalSell.toFixed(2)}</span></div>
-              <div><strong className="text-gray-800">Total Profit: </strong><span className="text-green-700 font-bold text-lg">{totalProfit.toFixed(2)}</span></div>
+              <div>
+                <strong className="text-gray-800">Total Investment: </strong>
+                <span className="text-yellow-700 font-bold">{totalInvestment.toFixed(2)}</span>
+              </div>
+              <div>
+                <strong className="text-gray-800">Total Sell: </strong>
+                <span className="text-blue-700 font-bold">{totalSell.toFixed(2)}</span>
+              </div>
+              <div>
+                <strong className="text-gray-800">Total Profit: </strong>
+                <span className="text-green-700 font-bold text-lg">{totalProfit.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         )}

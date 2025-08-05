@@ -17,7 +17,6 @@ export default function UdharProducts() {
   const [item, setItem] = useState("");
   const [amount, setAmount] = useState("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [showCreditForm, setShowCreditForm] = useState(false);
   const [currentShop, setCurrentShop] = useState<string | null>(null);
   const router = useRouter();
 
@@ -66,7 +65,6 @@ export default function UdharProducts() {
     setPerson("");
     setItem("");
     setAmount("");
-    setShowCreditForm(false);
   };
 
   const handleDeleteCredit = (index: number) => {
@@ -74,70 +72,50 @@ export default function UdharProducts() {
     toast.success("Udhar deleted successfully");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentShop");
-    router.push("/");
-  };
-
   return (
     <section className="w-full bg-gradient-to-br from-gray-100 via-indigo-50 to-purple-50 py-10 px-4 sm:px-6 lg:px-12">
       <div className="max-w-5xl mx-auto">
         <Toaster position="top-right" richColors />
 
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            onClick={() => {
-              setShowCreditForm(true);
-              setEditingIndex(null);
-            }}
-            className="bg-blue-600 text-white hover:bg-blue-700"
-          >
-            + Add Udhar Product
-          </Button>
-          <Button
-            onClick={handleLogout}
-            className="bg-red-600 text-white hover:bg-red-700"
-          >
-            Logout
-          </Button>
-        </div>
-
-        {showCreditForm && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 className="text-xl font-semibold text-indigo-800 mb-4">
-              {editingIndex !== null ? "Update Udhar" : "Add New Udhar"}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Person's Name"
-                value={person}
-                onChange={(e) => setPerson(e.target.value)}
-                className="border px-4 py-2 rounded-md w-full bg-white/90"
-              />
-              <input
-                type="text"
-                placeholder="Item Given"
-                value={item}
-                onChange={(e) => setItem(e.target.value)}
-                className="border px-4 py-2 rounded-md w-full bg-white/90"
-              />
-              <input
-                type="number"
-                placeholder="Amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="border px-4 py-2 rounded-md w-full bg-white/90"
-              />
-              <div className="sm:col-span-2">
-                <Button onClick={handleAddCredit} className="w-full bg-blue-600 text-white hover:bg-blue-700">
-                  {editingIndex !== null ? "Update Udhar" : "Add Udhar"}
-                </Button>
-              </div>
+        {/* Always Show Add Udhar Form */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-xl font-semibold text-indigo-800 mb-4">
+            {editingIndex !== null ? "Update Udhar" : "Add New Udhar"}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Person's Name"
+              value={person}
+              onChange={(e) => setPerson(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <input
+              type="text"
+              placeholder="Item Given"
+              value={item}
+              onChange={(e) => setItem(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <input
+              type="number"
+              placeholder="Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="border px-4 py-2 rounded-md w-full bg-white/90"
+            />
+            <div className="sm:col-span-2">
+              <Button
+                onClick={handleAddCredit}
+                className="w-full bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {editingIndex !== null ? "Update Udhar" : "Add Udhar"}
+              </Button>
             </div>
           </div>
-        )}
+        </div>
 
+        {/* Udhar Table */}
         {credits.length > 0 && (
           <div className="overflow-x-auto mt-10">
             <h2 className="text-2xl font-bold mb-4 text-indigo-800">Udhar List</h2>
@@ -157,7 +135,9 @@ export default function UdharProducts() {
                     <td className="py-2 px-4">{index + 1}</td>
                     <td className="py-2 px-4">{credit.person}</td>
                     <td className="py-2 px-4">{credit.item}</td>
-                    <td className="py-2 px-4 text-blue-600">{credit.amount.toFixed(2)}</td>
+                    <td className="py-2 px-4 text-blue-600">
+                      {credit.amount.toFixed(2)}
+                    </td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
                         <Button
@@ -172,7 +152,6 @@ export default function UdharProducts() {
                             setPerson(currentCredit.person);
                             setItem(currentCredit.item);
                             setAmount(currentCredit.amount.toString());
-                            setShowCreditForm(true);
                             setEditingIndex(index);
                           }}
                           className="bg-blue-600 text-white hover:bg-blue-700 text-sm px-3 py-1"
