@@ -96,6 +96,10 @@ export default function SellProducts() {
     router.push('/');
   };
 
+  const totalProfit = products.reduce((total, p) => total + p.profit, 0);
+  const totalInvestment = products.reduce((total, p) => total + p.totalInvestment, 0);
+  const totalSell = products.reduce((total, p) => total + p.totalSell, 0);
+
   return (
     <section className="w-full bg-gradient-to-br from-gray-100 via-indigo-50 to-purple-50 py-10 px-4 sm:px-6 lg:px-12">
       <div className="max-w-5xl mx-auto">
@@ -181,6 +185,11 @@ export default function SellProducts() {
                 ))}
               </tbody>
             </table>
+            <div className="mt-4 p-4 bg-gray-300 rounded text-right space-y-1">
+              <div><strong className="text-gray-800">Total Investment: </strong><span className="text-yellow-700 font-bold">{totalInvestment.toFixed(2)}</span></div>
+              <div><strong className="text-gray-800">Total Sell: </strong><span className="text-blue-700 font-bold">{totalSell.toFixed(2)}</span></div>
+              <div><strong className="text-gray-800">Total Profit: </strong><span className="text-green-700 font-bold text-lg">{totalProfit.toFixed(2)}</span></div>
+            </div>
           </div>
         )}
       </div>

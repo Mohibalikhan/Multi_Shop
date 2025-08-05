@@ -157,7 +157,7 @@ export default function UdharProducts() {
                     <td className="py-2 px-4">{index + 1}</td>
                     <td className="py-2 px-4">{credit.person}</td>
                     <td className="py-2 px-4">{credit.item}</td>
-                    <td className="py-2 px-4 text-blue-600">₹{credit.amount.toFixed(2)}</td>
+                    <td className="py-2 px-4 text-blue-600">{credit.amount.toFixed(2)}</td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
                         <Button

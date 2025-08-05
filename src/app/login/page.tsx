@@ -7,21 +7,27 @@ export default function LoginPage() {
   const [shopId, setShopId] = useState('');
   const router = useRouter();
 
-  // ✅ Redirect to dashboard if already logged in
+  const ALLOWED_SHOP_ID = '0000'; // 🔐 only this code is valid
+
   useEffect(() => {
     const currentShop = localStorage.getItem('currentShop');
-    if (currentShop) {
+    if (currentShop === ALLOWED_SHOP_ID) {
       router.push('/dashboard');
     }
-  }, []);
+  }, [router]);
 
-  // ✅ Handle login
   const handleLogin = () => {
     const trimmedId = shopId.trim();
     if (!trimmedId) {
       alert('Please enter your Shop ID');
       return;
     }
+
+    if (trimmedId !== ALLOWED_SHOP_ID) {
+      alert('Invalid Shop ID');
+      return;
+    }
+
     localStorage.setItem('currentShop', trimmedId);
     router.push('/dashboard');
   };

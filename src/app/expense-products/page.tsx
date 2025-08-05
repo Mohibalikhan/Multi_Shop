@@ -151,7 +151,7 @@ export default function ExpensePage() {
                   <tr key={index} className="border-t">
                     <td className="py-2 px-4">{index + 1}</td>
                     <td className="py-2 px-4">{e.name}</td>
-                    <td className="py-2 px-4 text-red-600">₹{e.amount.toFixed(2)}</td>
+                    <td className="py-2 px-4 text-red-600">{e.amount.toFixed(2)}</td>
                     <td className="py-2 px-4">{e.date}</td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
