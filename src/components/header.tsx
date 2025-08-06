@@ -17,12 +17,22 @@ const Header = () => {
     };
 
     checkAuth();
-  }, []);
+
+    // Listen to auth changes (login/logout)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('currentShop');
-    router.push('/login');
+    setIsLoggedIn(false); // Update state
+    router.push('/login'); // or: window.location.href = '/login';
   };
 
   return (

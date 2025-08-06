@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { Toaster, toast } from 'sonner';
 
@@ -13,6 +13,7 @@ interface Expense {
 }
 
 export default function ExpensePage() {
+  const supabase = createClientComponentClient(); // ✅ Correct way for client-side auth
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
@@ -22,7 +23,7 @@ export default function ExpensePage() {
 
   const fetchExpenses = async () => {
     setLoading(true);
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData, error } = await supabase.auth.getUser();
     const userId = userData.user?.id;
 
     if (!userId) {
@@ -30,15 +31,15 @@ export default function ExpensePage() {
       return;
     }
 
-    const { data, error } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('expenses')
       .select('*')
       .eq('user_id', userId)
       .order('date', { ascending: false });
 
-    if (error) {
+    if (fetchError) {
       toast.error('Failed to fetch expenses');
-      console.error(error.message);
+      console.error(fetchError.message);
     } else {
       setExpenses(data as Expense[]);
     }
@@ -55,6 +56,7 @@ export default function ExpensePage() {
 
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id;
+
     if (!userId) {
       toast.error('User not logged in');
       return;
@@ -104,6 +106,11 @@ export default function ExpensePage() {
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id;
 
+    if (!userId) {
+      toast.error('User not logged in');
+      return;
+    }
+
     const { error } = await supabase
       .from('expenses')
       .delete()
@@ -127,7 +134,6 @@ export default function ExpensePage() {
     <section className="w-full bg-gradient-to-br from-gray-100 via-indigo-50 to-purple-50 py-10 px-4 sm:px-6 lg:px-12">
       <Toaster position="top-right" richColors />
       <div className="max-w-5xl mx-auto">
-
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold text-indigo-800 mb-4">
             {editingId ? 'Update Expense' : 'Add New Expense'}
