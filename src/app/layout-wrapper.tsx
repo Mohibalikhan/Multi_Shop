@@ -43,9 +43,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     return () => {
       listener.subscription.unsubscribe();
     };
-  }, [pathname]); // dependency: pathname ensures logic reruns on route change
+  }, [pathname]);
 
-  // Show loading screen while checking auth
   if (loading && !isPublicPage) {
     return (
       <div className="h-screen flex justify-center items-center text-indigo-700 text-xl font-semibold">
@@ -54,7 +53,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     );
   }
 
-  // Public page rendering
+  // Public page
   if (isPublicPage) {
     return (
       <>
@@ -67,17 +66,14 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     );
   }
 
-  // Protected page rendering
+  // Protected page (Expense only)
   return (
     <div className="flex flex-col min-h-screen lg:flex-row">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 bg-gray-800 text-white p-6 space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
         <nav className="flex flex-col space-y-2">
-          <Link href="/sell-products" className="hover:text-yellow-300">Sell Products</Link>
-          <Link href="/udhar-products" className="hover:text-yellow-300">Udhar Products</Link>
           <Link href="/expense-products" className="hover:text-yellow-300">Expense Products</Link>
-          <Link href="/generate-report" className="hover:text-yellow-300">Generate Report</Link>
         </nav>
       </aside>
 
@@ -92,10 +88,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-gray-700 text-white px-4 py-4 space-y-3">
-          <Link href="/sell-products" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Sell Products</Link>
-          <Link href="/udhar-products" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Udhar Products</Link>
-          <Link href="/expense-products" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Expense Products</Link>
-          <Link href="/generate-report" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Generate Report</Link>
+          <Link
+            href="/expense-products"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block hover:text-yellow-300"
+          >
+            Expense Products
+          </Link>
         </div>
       )}
 

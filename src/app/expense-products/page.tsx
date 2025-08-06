@@ -1,67 +1,63 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Toaster, toast } from 'sonner'
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { Button } from '@/components/ui/button';
+import { Toaster, toast } from 'sonner';
 
 interface Expense {
-  id: string
-  name: string
-  amount: number
-  date: string
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
 }
 
 export default function ExpensePage() {
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [name, setName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [date, setDate] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-
-  const router = useRouter()
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [name, setName] = useState('');
+  const [amount, setAmount] = useState('');
+  const [date, setDate] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchExpenses = async () => {
-    const user = await supabase.auth.getUser()
-    const userId = user.data.user?.id
+    setLoading(true);
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
 
     if (!userId) {
-      toast.error('User not logged in')
-      console.log('❌ No user ID found')
-      return
+      toast.error('User not logged in');
+      return;
     }
-
-    console.log('✅ Fetching expenses for User ID:', userId)
 
     const { data, error } = await supabase
       .from('expenses')
       .select('*')
       .eq('user_id', userId)
-      .order('date', { ascending: false })
+      .order('date', { ascending: false });
 
     if (error) {
-      toast.error('Failed to load expenses')
-      console.error('❌ Supabase fetch error:', error.message)
+      toast.error('Failed to fetch expenses');
+      console.error(error.message);
     } else {
-      console.log('📦 Expenses loaded:', data)
-      setExpenses(data as Expense[])
+      setExpenses(data as Expense[]);
     }
-  }
+
+    setLoading(false);
+  };
 
   const handleAddOrUpdate = async () => {
-    const user = await supabase.auth.getUser()
-    const userId = user.data.user?.id
-
-    const expenseAmount = parseFloat(amount)
+    const expenseAmount = parseFloat(amount);
     if (!name || isNaN(expenseAmount) || !date) {
-      toast.error('Please fill all fields correctly')
-      return
+      toast.error('Fill all fields correctly');
+      return;
     }
 
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
     if (!userId) {
-      toast.error('User not logged in')
-      return
+      toast.error('User not logged in');
+      return;
     }
 
     if (editingId) {
@@ -69,16 +65,16 @@ export default function ExpensePage() {
         .from('expenses')
         .update({ name, amount: expenseAmount, date })
         .eq('id', editingId)
-        .eq('user_id', userId)
+        .eq('user_id', userId);
 
       if (error) {
-        toast.error('Failed to update expense')
-        console.error('❌ Update error:', error.message)
-        return
+        toast.error('Update failed');
+        console.error(error.message);
+        return;
       }
 
-      toast.success('Expense updated')
-      setEditingId(null)
+      toast.success('Expense updated');
+      setEditingId(null);
     } else {
       const { error } = await supabase.from('expenses').insert([
         {
@@ -87,55 +83,56 @@ export default function ExpensePage() {
           date,
           user_id: userId,
         },
-      ])
+      ]);
 
       if (error) {
-        toast.error('Failed to add expense')
-        console.error('❌ Insert error:', error.message)
-        return
+        toast.error('Insert failed');
+        console.error(error.message);
+        return;
       }
 
-      toast.success('Expense added')
+      toast.success('Expense added');
     }
 
-    setName('')
-    setAmount('')
-    setDate('')
-    fetchExpenses()
-  }
+    setName('');
+    setAmount('');
+    setDate('');
+    fetchExpenses();
+  };
 
   const handleDelete = async (id: string) => {
-    const user = await supabase.auth.getUser()
-    const userId = user.data.user?.id
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
 
     const { error } = await supabase
       .from('expenses')
       .delete()
       .eq('id', id)
-      .eq('user_id', userId)
+      .eq('user_id', userId);
 
     if (error) {
-      toast.error('Delete failed')
-      console.error('❌ Delete error:', error.message)
+      toast.error('Delete failed');
+      console.error(error.message);
     } else {
-      toast.success('Deleted')
-      fetchExpenses()
+      toast.success('Deleted successfully');
+      fetchExpenses();
     }
-  }
+  };
 
   useEffect(() => {
-    fetchExpenses()
-  }, [])
+    fetchExpenses();
+  }, []);
 
   return (
     <section className="w-full bg-gradient-to-br from-gray-100 via-indigo-50 to-purple-50 py-10 px-4 sm:px-6 lg:px-12">
+      <Toaster position="top-right" richColors />
       <div className="max-w-5xl mx-auto">
-        <Toaster position="top-right" richColors />
 
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold text-indigo-800 mb-4">
             {editingId ? 'Update Expense' : 'Add New Expense'}
           </h2>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="text"
@@ -168,7 +165,9 @@ export default function ExpensePage() {
           </div>
         </div>
 
-        {expenses.length > 0 ? (
+        {loading ? (
+          <div className="text-center text-indigo-600">Loading expenses...</div>
+        ) : expenses.length > 0 ? (
           <div className="overflow-x-auto mt-10">
             <h2 className="text-2xl font-bold mb-4 text-indigo-800">Expense List</h2>
             <table className="w-full bg-white rounded-lg shadow text-left min-w-[700px]">
@@ -178,7 +177,7 @@ export default function ExpensePage() {
                   <th className="py-2 px-4">Expense Name</th>
                   <th className="py-2 px-4">Amount</th>
                   <th className="py-2 px-4">Date</th>
-                  <th className="py-2 px-4">Action</th>
+                  <th className="py-2 px-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,7 +185,7 @@ export default function ExpensePage() {
                   <tr key={e.id} className="border-t">
                     <td className="py-2 px-4">{index + 1}</td>
                     <td className="py-2 px-4">{e.name}</td>
-                    <td className="py-2 px-4 text-red-600">{e.amount.toFixed(2)}</td>
+                    <td className="py-2 px-4 text-red-600">Rs {e.amount.toFixed(2)}</td>
                     <td className="py-2 px-4">{e.date}</td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
@@ -198,14 +197,14 @@ export default function ExpensePage() {
                         </Button>
                         <Button
                           onClick={() => {
-                            setName(e.name)
-                            setAmount(e.amount.toString())
-                            setDate(e.date)
-                            setEditingId(e.id)
+                            setName(e.name);
+                            setAmount(e.amount.toString());
+                            setDate(e.date);
+                            setEditingId(e.id);
                           }}
-                          className="bg-green-600 text-white hover:bg-green-700 text-sm px-3 py-1"
+                          className="bg-yellow-600 text-white hover:bg-yellow-700 text-sm px-3 py-1"
                         >
-                          Update
+                          Edit
                         </Button>
                       </div>
                     </td>
@@ -215,11 +214,9 @@ export default function ExpensePage() {
             </table>
           </div>
         ) : (
-          <div className="mt-6 text-center text-gray-500">
-            No expenses found or failed to load.
-          </div>
+          <div className="mt-6 text-center text-gray-500">No expenses found.</div>
         )}
       </div>
     </section>
-  )
+  );
 }
