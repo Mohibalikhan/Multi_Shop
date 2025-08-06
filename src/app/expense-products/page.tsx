@@ -24,16 +24,27 @@ export default function ExpensePage() {
 
   const fetchExpenses = async () => {
     const user = await supabase.auth.getUser()
+    const userId = user.data.user?.id
+
+    if (!userId) {
+      toast.error('User not logged in')
+      console.log('❌ No user ID found')
+      return
+    }
+
+    console.log('✅ Fetching expenses for User ID:', userId)
+
     const { data, error } = await supabase
       .from('expenses')
       .select('*')
-      .eq('user_id', user.data.user?.id)
+      .eq('user_id', userId)
       .order('date', { ascending: false })
 
     if (error) {
       toast.error('Failed to load expenses')
-      console.error(error)
+      console.error('❌ Supabase fetch error:', error.message)
     } else {
+      console.log('📦 Expenses loaded:', data)
       setExpenses(data as Expense[])
     }
   }
@@ -48,8 +59,12 @@ export default function ExpensePage() {
       return
     }
 
+    if (!userId) {
+      toast.error('User not logged in')
+      return
+    }
+
     if (editingId) {
-      // ✏️ Update
       const { error } = await supabase
         .from('expenses')
         .update({ name, amount: expenseAmount, date })
@@ -58,24 +73,25 @@ export default function ExpensePage() {
 
       if (error) {
         toast.error('Failed to update expense')
+        console.error('❌ Update error:', error.message)
         return
       }
 
       toast.success('Expense updated')
       setEditingId(null)
     } else {
-      // ➕ Insert
       const { error } = await supabase.from('expenses').insert([
         {
           name,
           amount: expenseAmount,
           date,
-          user_id: userId
-        }
+          user_id: userId,
+        },
       ])
 
       if (error) {
         toast.error('Failed to add expense')
+        console.error('❌ Insert error:', error.message)
         return
       }
 
@@ -90,15 +106,17 @@ export default function ExpensePage() {
 
   const handleDelete = async (id: string) => {
     const user = await supabase.auth.getUser()
+    const userId = user.data.user?.id
 
     const { error } = await supabase
       .from('expenses')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.data.user?.id)
+      .eq('user_id', userId)
 
     if (error) {
       toast.error('Delete failed')
+      console.error('❌ Delete error:', error.message)
     } else {
       toast.success('Deleted')
       fetchExpenses()
@@ -150,7 +168,7 @@ export default function ExpensePage() {
           </div>
         </div>
 
-        {expenses.length > 0 && (
+        {expenses.length > 0 ? (
           <div className="overflow-x-auto mt-10">
             <h2 className="text-2xl font-bold mb-4 text-indigo-800">Expense List</h2>
             <table className="w-full bg-white rounded-lg shadow text-left min-w-[700px]">
@@ -195,6 +213,10 @@ export default function ExpensePage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div className="mt-6 text-center text-gray-500">
+            No expenses found or failed to load.
           </div>
         )}
       </div>
