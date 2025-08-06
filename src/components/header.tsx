@@ -1,18 +1,26 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Button } from '@/components/ui/button';
 
 const Header = () => {
   const router = useRouter();
+  const supabase = createClientComponentClient();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const shopId = localStorage.getItem('currentShop');
-    setIsLoggedIn(!!shopId);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session?.user);
+    };
+
+    checkAuth();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('currentShop');
     router.push('/login');
   };
@@ -25,12 +33,12 @@ const Header = () => {
         </h1>
 
         {isLoggedIn && (
-          <button
+          <Button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"
           >
             Logout
-          </button>
+          </Button>
         )}
       </div>
     </nav>

@@ -1,55 +1,45 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Toaster, toast } from 'sonner';
+import { useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function LoginPage() {
-  const [shopId, setShopId] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
-  const ALLOWED_SHOP_ID = '0000'; // 🔐 Only this code is valid
-
-  useEffect(() => {
-    const currentShop = localStorage.getItem('currentShop');
-    if (currentShop === ALLOWED_SHOP_ID) {
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      alert('Login failed: ' + error.message);
+    } else {
       router.push('/dashboard');
     }
-  }, [router]);
-
-  const handleLogin = () => {
-    const trimmedId = shopId.trim();
-    if (!trimmedId) {
-      toast.error('Please enter your Shop ID');
-      return;
-    }
-
-    if (trimmedId !== ALLOWED_SHOP_ID) {
-      toast.error('Invalid Shop ID');
-      return;
-    }
-
-    localStorage.setItem('currentShop', trimmedId);
-    router.push('/dashboard');
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-indigo-200">
-      <Toaster position="top-right" richColors />
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-indigo-800">
-          Login to Your Shop
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-indigo-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-indigo-800">Login to HisabKitab</h2>
         <input
-          type="text"
-          placeholder="Enter Shop ID"
-          value={shopId}
-          onChange={(e) => setShopId(e.target.value)}
-          className="w-full border border-gray-300 px-4 py-2 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mb-4 w-full border px-4 py-2 rounded"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mb-4 w-full border px-4 py-2 rounded"
         />
         <button
           onClick={handleLogin}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md"
+          className="bg-indigo-600 text-white w-full py-2 rounded hover:bg-indigo-700"
         >
           Login
         </button>

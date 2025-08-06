@@ -2,31 +2,60 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { Session } from '@supabase/supabase-js';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import Link from 'next/link';
-import { Menu } from 'lucide-react'; // for mobile hamburger icon
+import { Menu } from 'lucide-react';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const isLoginPage = pathname === '/login';
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isPublicPage = pathname === '/login' || pathname === '/signup';
+
+  const supabase = createClientComponentClient();
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const shopId = localStorage.getItem('currentShop');
+    const initSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      setSession(data.session || null);
+      setLoading(false);
 
-    if (!shopId && !isLoginPage) {
-      router.push('/login');
-    } else if (shopId && isLoginPage) {
-      router.push('/dashboard');
-    }
+      if (!data.session && !isPublicPage) {
+        router.replace('/login');
+      }
 
-    setIsLoggedIn(!!shopId);
-  }, [pathname, router, isLoginPage]);
+      if (data.session && isPublicPage) {
+        router.replace('/dashboard');
+      }
+    };
 
-  if (isLoginPage) {
+    initSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [pathname]); // dependency: pathname ensures logic reruns on route change
+
+  // Show loading screen while checking auth
+  if (loading && !isPublicPage) {
+    return (
+      <div className="h-screen flex justify-center items-center text-indigo-700 text-xl font-semibold">
+        Checking session...
+      </div>
+    );
+  }
+
+  // Public page rendering
+  if (isPublicPage) {
     return (
       <>
         <Header />
@@ -38,11 +67,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     );
   }
 
-  if (!isLoggedIn) return null; // Prevent flashing unauthorized pages
-
+  // Protected page rendering
   return (
     <div className="flex flex-col min-h-screen lg:flex-row">
-      {/* Sidebar for large screens */}
+      {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 bg-gray-800 text-white p-6 space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
         <nav className="flex flex-col space-y-2">
@@ -53,21 +81,21 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         </nav>
       </aside>
 
-      {/* Mobile topbar */}
+      {/* Mobile Topbar */}
       <div className="lg:hidden bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
         <span className="font-bold text-lg">Dashboard</span>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="focus:outline-none">
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           <Menu className="h-6 w-6" />
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-gray-700 text-white px-4 py-4 space-y-3">
-          <Link href="/sell-products" className="block hover:text-yellow-300" onClick={() => setMobileMenuOpen(false)}>Sell Products</Link>
-          <Link href="/udhar-products" className="block hover:text-yellow-300" onClick={() => setMobileMenuOpen(false)}>Udhar Products</Link>
-          <Link href="/expense-products" className="block hover:text-yellow-300" onClick={() => setMobileMenuOpen(false)}>Expense Products</Link>
-          <Link href="/generate-report" className="block hover:text-yellow-300" onClick={() => setMobileMenuOpen(false)}>Generate Report</Link>
+          <Link href="/sell-products" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Sell Products</Link>
+          <Link href="/udhar-products" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Udhar Products</Link>
+          <Link href="/expense-products" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Expense Products</Link>
+          <Link href="/generate-report" onClick={() => setMobileMenuOpen(false)} className="block hover:text-yellow-300">Generate Report</Link>
         </div>
       )}
 
