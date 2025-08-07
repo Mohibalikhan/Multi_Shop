@@ -71,8 +71,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     <div className="flex flex-col min-h-screen lg:flex-row">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 bg-gray-800 text-white p-6 space-y-4">
+        <Link href="/dashboard">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
+        </Link>
         <nav className="flex flex-col space-y-2">
+          <Link href="/sell-products" className="hover:text-yellow-300">Add Sell Products</Link>
           <Link href="/udhar-products" className="hover:text-yellow-300">Add Udhar Products</Link>
           <Link href="/expense-products" className="hover:text-yellow-300">Add Expense Products</Link>
         </nav>
@@ -80,7 +83,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
       {/* Mobile Topbar */}
       <div className="lg:hidden bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
-        <span className="font-bold text-lg">Dashboard</span>
+        <Link href="/dashboard">
+            <span className="font-bold text-lg cursor-pointer">Dashboard</span>
+        </Link>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           <Menu className="h-6 w-6" />
         </button>
@@ -89,6 +94,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-gray-700 text-white px-4 py-4 space-y-3">
+
+          <Link
+            href="/sell-products"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block hover:text-yellow-300"
+          >
+            Add Sell Products
+          </Link>
+
           <Link
             href="/udhar-products"
             onClick={() => setMobileMenuOpen(false)}

@@ -10,6 +10,13 @@ export default function DashboardPage() {
       </p>
 
       <ul className="space-y-3 text-gray-800 text-base list-disc list-inside">
+
+      <li>
+          <strong>Sell Products:</strong> Keep track of what you sell each day in your shop — stay on top of your daily sales.
+       </li>
+       <li>
+          <strong>Udhar Products:</strong> Track items you give to others on credit, daily or monthly, to manage your shop's Udhar easily.
+      </li>
         <li>
           <strong>Expense Products:</strong> Track your daily or monthly shop expenses by adding items like electricity bills, staff salary, rent, and other operational costs.
         </li>
