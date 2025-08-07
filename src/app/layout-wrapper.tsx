@@ -88,9 +88,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
         <button
           onClick={handleLogout}
-          className="mt-6 flex items-center gap-2 text-sm text-red-400 hover:text-red-300"
+          className="mt-6 flex items-center gap-2 text-lg text-red-500 hover:text-red-300"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-6 h-6" />
           Logout
         </button>
       </aside>
