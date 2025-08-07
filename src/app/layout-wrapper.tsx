@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import type { Session } from '@supabase/supabase-js';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
 import Link from 'next/link';
-import { Menu } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import Footer from '@/components/footer';
+import Header from '@/components/header'; // ✅ Imported from new file
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,7 +21,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const initSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
       setSession(data.session || null);
       setLoading(false);
 
@@ -45,6 +45,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     };
   }, [pathname]);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('currentShop');
+    router.push('/login');
+  };
+
   if (loading && !isPublicPage) {
     return (
       <div className="h-screen flex justify-center items-center text-indigo-700 text-xl font-semibold">
@@ -53,11 +59,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     );
   }
 
-  // Public page
   if (isPublicPage) {
     return (
       <>
-        <Header />
+        <Header session={session} />
         <main className="min-h-screen flex items-center justify-center bg-gray-50">
           {children}
         </main>
@@ -66,65 +71,70 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     );
   }
 
-  // Protected page (Expense only)
   return (
     <div className="flex flex-col min-h-screen lg:flex-row">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 bg-gray-800 text-white p-6 space-y-4">
-        <Link href="/dashboard">
-        <h2 className="text-xl font-bold mb-6">Dashboard</h2>
-        </Link>
-        <nav className="flex flex-col space-y-2">
-          <Link href="/sell-products" className="hover:text-yellow-300">Add Sell Products</Link>
-          <Link href="/udhar-products" className="hover:text-yellow-300">Add Udhar Products</Link>
-          <Link href="/expense-products" className="hover:text-yellow-300">Add Expense Products</Link>
-        </nav>
+      <aside className="hidden lg:flex flex-col justify-between w-64 bg-blue-800 text-white p-6">
+        <div>
+          <Link href="/dashboard">
+            <h2 className="text-xl font-bold mb-6">Dashboard</h2>
+          </Link>
+          <nav className="flex flex-col text-lg space-y-3">
+            <Link href="/sell-products" className="hover:text-yellow-300">Add Sell Products</Link>
+            <Link href="/udhar-products" className="hover:text-yellow-300">Add Udhar Products</Link>
+            <Link href="/expense-products" className="hover:text-yellow-300">Add Expense Products</Link>
+          </nav>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="mt-6 flex items-center gap-2 text-sm text-red-400 hover:text-red-300"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </button>
       </aside>
 
-      {/* Mobile Topbar */}
-      <div className="lg:hidden bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
-        <Link href="/dashboard">
-            <span className="font-bold text-lg cursor-pointer">Dashboard</span>
-        </Link>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          <Menu className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-gray-700 text-white px-4 py-4 space-y-3">
-
-          <Link
-            href="/sell-products"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block hover:text-yellow-300"
-          >
-            Add Sell Products
-          </Link>
-
-          <Link
-            href="/udhar-products"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block hover:text-yellow-300"
-          >
-            Add Udhar
-          </Link>
-
-          <Link
-            href="/expense-products"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block hover:text-yellow-300"
-          >
-            Add Expenses
-          </Link>
-
-        </div>
-      )}
-
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        <Header />
+        <Header session={session} onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
+
+        {/* Mobile Dropdown Menu (under header) */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-gray-700 text-white px-4 py-4 space-y-3">
+            <Link
+              href="/sell-products"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block hover:text-yellow-300"
+            >
+              Add Sell Products
+            </Link>
+            <Link
+              href="/udhar-products"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block hover:text-yellow-300"
+            >
+              Add Udhar
+            </Link>
+            <Link
+              href="/expense-products"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block hover:text-yellow-300"
+            >
+              Add Expenses
+            </Link>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                handleLogout();
+              }}
+              className="block text-red-400 hover:text-red-300 mt-2"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+
         <main className="flex-1 p-4 bg-gray-100">{children}</main>
         <Footer />
       </div>

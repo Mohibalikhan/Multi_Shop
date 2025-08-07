@@ -12,7 +12,7 @@ export default function DashboardPage() {
       <ul className="space-y-3 text-gray-800 text-base list-disc list-inside">
 
       <li>
-          <strong>Sell Products:</strong> Keep track of what you sell each day in your shop — stay on top of your daily sales.
+          <strong>Sell Products:</strong> Keep track of what you sell each day in your shop and track your Profit,loss and Investment.
        </li>
        <li>
           <strong>Udhar Products:</strong> Track items you give to others on credit, daily or monthly, to manage your shop's Udhar easily.
@@ -23,7 +23,7 @@ export default function DashboardPage() {
       </ul>
 
       <div className="mt-8 text-sm text-gray-600">
-        Tip: All your expenses are stored securely in Supabase and accessible from any device after login.
+        Tip: All your expenses are stored securely and accessible from any device after login.
       </div>
     </section>
   );

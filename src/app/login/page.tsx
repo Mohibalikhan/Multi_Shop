@@ -20,29 +20,48 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-indigo-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-indigo-800">Login to HisabKitab</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mb-4 w-full border px-4 py-2 rounded"
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Side Image */}
+      <div className="md:w-1/2 h-64 md:h-auto">
+        <img
+          src="/images/login.jpg" // ✅ Correct public path
+          alt="Login Visual"
+          className="w-full h-full object-cover"
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mb-4 w-full border px-4 py-2 rounded"
-        />
-        <button
-          onClick={handleLogin}
-          className="bg-indigo-600 text-white w-full py-2 rounded hover:bg-indigo-700"
-        >
-          Login
-        </button>
+      </div>
+
+      {/* Right Side Login Form */}
+      <div className="md:w-1/2 flex items-center justify-center bg-gray-100 px-6 py-12">
+        <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl">
+          <h2 className="text-3xl font-semibold text-indigo-700 mb-6 text-center">
+            Welcome to <span className="font-bold">HisabKitab</span>
+          </h2>
+
+          <div className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              onClick={handleLogin}
+              className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300"
+            >
+              Login
+            </button>
+          </div>
+
+          
+        </div>
       </div>
     </div>
   );

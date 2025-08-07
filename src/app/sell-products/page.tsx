@@ -18,7 +18,7 @@ interface Product {
 }
 
 export default function SellProducts() {
-  const supabase = createClientComponentClient(); // ✅ Added this line
+  const supabase = createClientComponentClient();
   const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -113,21 +113,23 @@ export default function SellProducts() {
       <Toaster position="top-right" richColors />
       <h2 className="text-2xl font-bold mb-4">Sell Products</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-6 rounded-md shadow">
-        <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="border p-2 rounded" />
-        <input placeholder="Qty" value={buyPrice} onChange={(e) => setBuyPrice(e.target.value)} className="border p-2 rounded" />
-        <input placeholder="Buy Rate" value={buyRate} onChange={(e) => setBuyRate(e.target.value)} className="border p-2 rounded" />
-        <input placeholder="Sell Rate" value={sellRate} onChange={(e) => setSellRate(e.target.value)} className="border p-2 rounded" />
-        <div className="col-span-2">
+      {/* Form */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-4 sm:p-6 rounded-md shadow">
+        <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="border p-2 rounded w-full" />
+        <input placeholder="Qty" value={buyPrice} onChange={(e) => setBuyPrice(e.target.value)} className="border p-2 rounded w-full" />
+        <input placeholder="Buy Rate Each" value={buyRate} onChange={(e) => setBuyRate(e.target.value)} className="border p-2 rounded w-full" />
+        <input placeholder="Sell Rate Each" value={sellRate} onChange={(e) => setSellRate(e.target.value)} className="border p-2 rounded w-full" />
+        <div className="col-span-1 sm:col-span-2">
           <Button onClick={handleAddProduct} className="w-full bg-green-600 hover:bg-green-700 text-white">
             {editingProductId ? 'Update' : 'Add'} Product
           </Button>
         </div>
       </div>
 
+      {/* Product Table */}
       {products.length > 0 && (
         <div className="mt-8 bg-white rounded shadow overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full min-w-[600px] text-sm sm:text-base text-left">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="px-4 py-2">#</th>
@@ -152,25 +154,45 @@ export default function SellProducts() {
                   <td className="px-4 py-2 text-yellow-700">{p.total_investment.toFixed(2)}</td>
                   <td className="px-4 py-2 text-blue-700">{p.total_sell.toFixed(2)}</td>
                   <td className="px-4 py-2 text-green-700 font-bold">{p.profit.toFixed(2)}</td>
-                  <td className="px-4 py-2 space-x-2">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white text-sm" onClick={() => handleDelete(p.id)}>Delete</Button>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white text-sm" onClick={() => {
-                      setName(p.name);
-                      setBuyPrice(p.buy_price.toString());
-                      setBuyRate(p.buy_rate.toString());
-                      setSellRate(p.sell_rate.toString());
-                      setEditingProductId(p.id);
-                    }}>Update</Button>
+                  <td className="px-4 py-2 space-y-2 sm:space-x-2 sm:space-y-0 sm:flex">
+                    <Button
+                      className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white text-sm"
+                      onClick={() => handleDelete(p.id)}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                      onClick={() => {
+                        setName(p.name);
+                        setBuyPrice(p.buy_price.toString());
+                        setBuyRate(p.buy_rate.toString());
+                        setSellRate(p.sell_rate.toString());
+                        setEditingProductId(p.id);
+                      }}
+                    >
+                      Update
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="p-4 bg-gray-100 mt-4 rounded-md text-right">
-            <p><strong>Total Investment:</strong> <span className="text-yellow-700">{totalInvestment.toFixed(2)}</span></p>
-            <p><strong>Total Sell:</strong> <span className="text-blue-700">{totalSell.toFixed(2)}</span></p>
-            <p><strong>Total Profit:</strong> <span className="text-green-700">{totalProfit.toFixed(2)}</span></p>
+          {/* Summary */}
+          <div className="p-4 bg-gray-100 mt-4 rounded-md text-right text-sm sm:text-base">
+            <p>
+              <strong>Total Investment:</strong>{' '}
+              <span className="text-yellow-700">{totalInvestment.toFixed(2)}</span>
+            </p>
+            <p>
+              <strong>Total Sell:</strong>{' '}
+              <span className="text-blue-700">{totalSell.toFixed(2)}</span>
+            </p>
+            <p>
+              <strong>Total Profit:</strong>{' '}
+              <span className="text-green-700">{totalProfit.toFixed(2)}</span>
+            </p>
           </div>
         </div>
       )}
