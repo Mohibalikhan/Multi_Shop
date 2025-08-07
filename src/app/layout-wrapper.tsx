@@ -73,7 +73,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <aside className="hidden lg:block w-64 bg-gray-800 text-white p-6 space-y-4">
         <h2 className="text-xl font-bold mb-6">Dashboard</h2>
         <nav className="flex flex-col space-y-2">
-          <Link href="/expense-products" className="hover:text-yellow-300">Expense Products</Link>
+          <Link href="/udhar-products" className="hover:text-yellow-300">Add Udhar Products</Link>
+          <Link href="/expense-products" className="hover:text-yellow-300">Add Expense Products</Link>
         </nav>
       </aside>
 
@@ -89,12 +90,21 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {mobileMenuOpen && (
         <div className="lg:hidden bg-gray-700 text-white px-4 py-4 space-y-3">
           <Link
+            href="/udhar-products"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block hover:text-yellow-300"
+          >
+            Add Udhar
+          </Link>
+
+          <Link
             href="/expense-products"
             onClick={() => setMobileMenuOpen(false)}
             className="block hover:text-yellow-300"
           >
-            Expense Products
+            Add Expenses
           </Link>
+
         </div>
       )}
 
