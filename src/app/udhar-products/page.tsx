@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/button'
 import { Toaster, toast } from 'sonner'
+import { FaPrint } from 'react-icons/fa' // 👈 Import the print icon
 
 interface CreditItem {
   id: string
@@ -23,7 +24,7 @@ export default function UdharProducts() {
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const fetchCredits = async () => {
-    const { data: userData, error: userError } = await supabase.auth.getUser()
+    const { data: userData } = await supabase.auth.getUser()
     const userId = userData.user?.id
 
     if (!userId) {
@@ -121,6 +122,49 @@ export default function UdharProducts() {
     }
   }
 
+  const handlePrintInvoice = (credit: CreditItem) => {
+    const invoiceWindow = window.open('', '_blank', 'width=600,height=600')
+
+    if (!invoiceWindow) return
+
+    invoiceWindow.document.write(`
+      <html>
+        <head>
+          <title>Udhaar Invoice</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            h1 { color: #4F46E5; }
+            .invoice-box {
+              max-width: 600px;
+              border: 1px solid #ccc;
+              padding: 20px;
+              margin: auto;
+              border-radius: 8px;
+            }
+            .label { font-weight: bold; }
+            .value { margin-bottom: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-box">
+            <h1>Shop Udhaar Invoice</h1>
+            <p><span class="label">Person:</span> ${credit.person}</p>
+            <p><span class="label">Item:</span> ${credit.item}</p>
+            <p><span class="label">Amount:</span> Rs. ${credit.amount.toFixed(2)}</p>
+            <p><span class="label">Date:</span> ${new Date().toLocaleDateString()}</p>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print()
+            }
+          </script>
+        </body>
+      </html>
+    `)
+
+    invoiceWindow.document.close()
+  }
+
   useEffect(() => {
     fetchCredits()
   }, [])
@@ -188,7 +232,7 @@ export default function UdharProducts() {
                     <td className="py-2 px-4">{credit.item}</td>
                     <td className="py-2 px-4 text-blue-600">{credit.amount.toFixed(2)}</td>
                     <td className="py-2 px-4">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         <Button
                           onClick={() => handleDelete(credit.id)}
                           className="bg-red-600 text-white hover:bg-red-700 text-sm px-3 py-1"
@@ -205,6 +249,13 @@ export default function UdharProducts() {
                           className="bg-blue-600 text-white hover:bg-blue-700 text-sm px-3 py-1"
                         >
                           Update
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handlePrintInvoice(credit)}
+                          className="text-gray-700 border border-gray-300 hover:bg-gray-100 text-sm px-3 py-1 flex items-center gap-2"
+                        >
+                          <FaPrint className="text-lg" /> Print
                         </Button>
                       </div>
                     </td>
